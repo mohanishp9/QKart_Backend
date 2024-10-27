@@ -8,6 +8,7 @@ const router = express.Router();
 
 router.get(
   "/:userId",
+  auth,
   validate(userValidation.getUser),
   userController.getUser
 );

@@ -11,8 +11,6 @@ const passport = require("passport");
 
 const app = express();
 
-const PORT = 8082;
-
 // set security HTTP headers - https://helmetjs.github.io/
 app.use(helmet());
 
@@ -29,7 +27,11 @@ app.use(compression());
 app.use(cors());
 app.options("*", cors());
 
-// TODO: CRIO_TASK_MODULE_AUTH - Initialize passport and add "jwt" authentication strategy
+// Initialize passport
+app.use(passport.initialize());
+
+// Use the JWT strategy
+passport.use("jwt", jwtStrategy);
 
 // Reroute all API request starting with "/v1" route
 app.use("/v1", routes);

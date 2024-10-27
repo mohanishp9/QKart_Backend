@@ -3,7 +3,6 @@ const ApiError = require("../utils/ApiError");
 const catchAsync = require("../utils/catchAsync");
 const { userService } = require("../services");
 
-// TODO: CRIO_TASK_MODULE_UNDERSTANDING_BASICS - Implement getUser() function
 /**
  * Get user details
  *  - Use service layer to get User data
@@ -46,6 +45,9 @@ const getUser = catchAsync(async (req, res) => {
   const user = await userService.getUserById(req.params.userId);
   if (!user) {
     throw new ApiError(httpStatus.NOT_FOUND, "User not found");
+  }
+  if(user.id !== req.user.id) {
+    throw new ApiError(httpStatus.FORBIDDEN, "Forbidden");
   }
   res.status(httpStatus.OK).send(user);
 });
