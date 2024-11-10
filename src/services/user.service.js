@@ -52,8 +52,43 @@ const createUser = async (userBody) => {
   return await User.create(userBody);
 };
 
+
+/**
+ * Get subset of user's data by id
+ * - Should fetch from Mongo only the email and address fields for the user apart from the id
+ *
+ * @param {ObjectId} id
+ * @returns {Promise<User>}
+ */
+const getUserAddressById = async (id) => {
+  const user = await User.findOne(
+    { _id: id },
+    { email: 1, address: 1 }
+  );
+  
+  if (!user) {
+    throw new ApiError(httpStatus.NOT_FOUND, "User not found");
+  }
+
+  return user;
+};
+
+/**
+ * Set user's shipping address
+ * @param {String} email
+ * @returns {String}
+ */
+const setAddress = async (user, newAddress) => {
+  user.address = newAddress;
+  await user.save();
+
+  return user.address;
+};
+
 module.exports = {
   getUserById,
   getUserByEmail,
   createUser,
+  getUserAddressById,
+  setAddress,
 };

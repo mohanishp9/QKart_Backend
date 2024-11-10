@@ -12,5 +12,11 @@ router.get(
   validate(userValidation.getUser),
   userController.getUser
 );
+router.put(
+  "/:userId",
+  auth,
+  validate(userValidation.setAddress),
+  userController.setAddress
+);
 
 module.exports = router;
