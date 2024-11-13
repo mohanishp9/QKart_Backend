@@ -22,4 +22,11 @@ router.put(
   cartController.updateCart
 );
 
+router.put(
+  "/checkout",
+  auth,
+  validate(cartValidation.checkout),
+  cartController.checkout
+);
+
 module.exports = router;

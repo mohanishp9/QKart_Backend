@@ -202,9 +202,60 @@ const deleteProductFromCart = async (user, productId) => {
   return cart;
 };
 
+/**
+ * Checkout a users cart.
+ * On success, users cart must have no products.
+ *
+ * @param {User} user
+ * @returns {Promise}
+ * @throws {ApiError} when cart is invalid
+ */
+const checkout = async (user) => {
+  const cart = await Cart.findOne({ email: user.email });
+  
+  if (!cart) {
+    throw new ApiError(httpStatus.NOT_FOUND, "User does not have a cart");
+  }
+
+  if (!cart.cartItems.length) {
+    throw new ApiError(httpStatus.BAD_REQUEST, "Cart is empty");
+  }
+
+  if (!user.hasSetNonDefaultAddress()) {
+    throw new ApiError(httpStatus.BAD_REQUEST, "Address not set");
+  }
+
+  const cartTotal = cart.cartItems.reduce((total, item) => {
+    return total + (item.product.price * item.quantity);
+  }, 0);
+
+  // Ensure we're working with numbers for comparison
+  const walletBalance = parseFloat(user.walletMoney);
+  const totalCost = parseFloat(cartTotal);
+
+  if (totalCost > walletBalance) {
+    throw new ApiError(httpStatus.BAD_REQUEST, "Wallet balance is insufficient");
+  }
+
+  // Update wallet balance
+  user.walletMoney = walletBalance - totalCost;
+  
+  // Empty cart
+  cart.cartItems = [];
+
+  // Save both user and cart
+  await Promise.all([
+    user.save(),
+    cart.save()
+  ]);
+
+  return cart;
+};
+
 module.exports = {
   getCartByUser,
   addProductToCart,
   updateProductInCart,
   deleteProductFromCart,
+  checkout,
 };

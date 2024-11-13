@@ -82,8 +82,55 @@ const updateCart = catchAsync(async (req, res) => {
 });
 
 
+/**
+ * Checkout user's cart
+ */
+const checkout = catchAsync(async (req, res) => {
+  try {
+    // Get cart and validate it exists and has items
+    const cart = await cartService.getCartByUser(req.user);
+    if (!cart || !cart.cartItems.length) {
+      throw new Error("Cart is empty");
+    }
+
+    // Validate user has address
+    if (!req.user.address) {
+      throw new Error("Address not set");
+    }
+
+    // Calculate cart total
+    const cartTotal = cart.cartItems.reduce(
+      (total, item) => total + item.product.cost * item.quantity,
+      0
+    );
+
+    // Validate user has enough balance
+    if (req.user.walletMoney < cartTotal) {
+      throw new Error("Insufficient wallet balance");
+    }
+
+    // Proceed with checkout
+    const updatedUser = await cartService.checkout(req.user);
+    if (!updatedUser) {
+      throw new Error("Checkout failed");
+    }
+
+    return res.status(httpStatus.NO_CONTENT).send();
+  } catch (error) {
+    if (error.message === "Cart is empty" || 
+        error.message === "Address not set" ||
+        error.message === "Insufficient wallet balance") {
+      return res.status(httpStatus.BAD_REQUEST).json({
+        message: error.message
+      });
+    }
+    throw error;
+  }
+});
+
 module.exports = {
   getCart,
   addProductToCart,
   updateCart,
+  checkout,
 };
