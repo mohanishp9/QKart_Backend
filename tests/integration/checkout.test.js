@@ -27,9 +27,7 @@ describe("Cart routes", () => {
       // Insert sample cart defined by "emptyCart" fixture to test DB
       await insertCart([emptyCart]);
 
-      const res = await request(app)
-        .put(`/v1/cart/checkout`)
-        .send();
+      const res = await request(app).put(`/v1/cart/checkout`).send();
 
       expect(res.status).toBe(httpStatus.UNAUTHORIZED);
     });

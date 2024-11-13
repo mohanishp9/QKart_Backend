@@ -29,7 +29,20 @@ describe("Cart test", () => {
 
       await expect(res).rejects.toThrow(ApiError);
       await expect(res).rejects.toThrow("User does not have a cart");
-      await expect(res).rejects.toHaveProperty("statusCode", httpStatus.NOT_FOUND);
+      await expect(res).rejects.toHaveProperty(
+        "statusCode",
+        httpStatus.NOT_FOUND
+      );
+      /* - ApiError is thrown
+       * - the "statusCode" field of response is "404 NOT FOUND"
+       *
+       * Example ApiError output
+       * {
+       *  "statusCode": 404,
+       *  "message": "User does not have a cart",
+       *  "stack": "<Error-stack-trace-if-present>"
+       * }
+       */
     });
 
     it("should throw 400 error if user's cart doesn't have any product", async () => {
@@ -40,7 +53,10 @@ describe("Cart test", () => {
 
       await expect(res).rejects.toThrow(ApiError);
       await expect(res).rejects.toThrow("Cart is empty");
-      await expect(res).rejects.toHaveProperty("statusCode", httpStatus.BAD_REQUEST);
+      await expect(res).rejects.toHaveProperty(
+        "statusCode",
+        httpStatus.BAD_REQUEST
+      );
     });
 
     it("should throw 400 error if address is not set - when User.hasSetNonDefaultAddress() returns false", async () => {
@@ -57,30 +73,35 @@ describe("Cart test", () => {
 
       await expect(res).rejects.toThrow(ApiError);
       await expect(res).rejects.toThrow("Address not set");
-      await expect(res).rejects.toHaveProperty("statusCode", httpStatus.BAD_REQUEST);
+      await expect(res).rejects.toHaveProperty(
+        "statusCode",
+        httpStatus.BAD_REQUEST
+      );
     });
 
     it("should throw 400 error if wallet balance is insufficient", async () => {
       mockingoose(Cart).toReturn(cartWithProductsUserOne, "findOne");
 
-      const userOneWithZeroBalance = { 
-        ...userOne, 
+      const userOneWithZeroBalance = {
+        ...userOne,
         walletMoney: 0,
         hasSetNonDefaultAddress: jest.fn().mockReturnValue(true),
-        save: jest.fn()
+        save: jest.fn(),
       };
 
       // create a mock function for User model's hasSetNonDefaultAddress() instance method
       const hasSetNonDefaultAddressMock = jest.fn();
-      userOneWithZeroBalance.hasSetNonDefaultAddress = hasSetNonDefaultAddressMock.mockReturnValue(
-        true
-      );
+      userOneWithZeroBalance.hasSetNonDefaultAddress =
+        hasSetNonDefaultAddressMock.mockReturnValue(true);
 
       const res = cartService.checkout(userOneWithZeroBalance);
 
       await expect(res).rejects.toThrow(ApiError);
       await expect(res).rejects.toThrow("Wallet balance is insufficient");
-      await expect(res).rejects.toHaveProperty("statusCode", httpStatus.BAD_REQUEST);
+      await expect(res).rejects.toHaveProperty(
+        "statusCode",
+        httpStatus.BAD_REQUEST
+      );
     });
 
     it("should update user balance and empty the cart on success", async () => {
@@ -91,9 +112,8 @@ describe("Cart test", () => {
 
       // create a mock function for User model's hasSetNonDefaultAddress() instance method
       const hasSetNonDefaultAddressMock = jest.fn();
-      userOneFinal.hasSetNonDefaultAddress = hasSetNonDefaultAddressMock.mockReturnValue(
-        true
-      );
+      userOneFinal.hasSetNonDefaultAddress =
+        hasSetNonDefaultAddressMock.mockReturnValue(true);
 
       // define a mock object for `cart.save()` call - assert saved Cart object
       let cartSaveMock = (...args) => {

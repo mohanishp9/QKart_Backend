@@ -13,9 +13,6 @@ const getUser = {
   }),
 };
 
-
-
-
 const setAddress = {
   params: Joi.object().keys({
     userId: Joi.string().custom(objectId),

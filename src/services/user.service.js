@@ -52,7 +52,6 @@ const createUser = async (userBody) => {
   return await User.create(userBody);
 };
 
-
 /**
  * Get subset of user's data by id
  * - Should fetch from Mongo only the email and address fields for the user apart from the id
@@ -61,11 +60,8 @@ const createUser = async (userBody) => {
  * @returns {Promise<User>}
  */
 const getUserAddressById = async (id) => {
-  const user = await User.findOne(
-    { _id: id },
-    { email: 1, address: 1 }
-  );
-  
+  const user = await User.findOne({ _id: id }, { email: 1, address: 1 });
+
   if (!user) {
     throw new ApiError(httpStatus.NOT_FOUND, "User not found");
   }

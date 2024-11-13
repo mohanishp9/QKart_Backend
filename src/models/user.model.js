@@ -61,7 +61,6 @@ userSchema.statics.isEmailTaken = async function (email) {
   return !!user;
 };
 
-
 // Hash the password before saving
 userSchema.pre("save", async function (next) {
   const user = this;
@@ -71,17 +70,17 @@ userSchema.pre("save", async function (next) {
   next();
 });
 
-// Method to check if password is correct
-userSchema.methods.isPasswordMatch = async function (password) {
-  const user = this;
-  return bcrypt.compare(password, user.password);
-};
-
 /**
  * Check if entered password matches the user's password
  * @param {string} password
  * @returns {Promise<boolean>}
  */
+
+// Method to check if password is correct
+userSchema.methods.isPasswordMatch = async function (password) {
+  const user = this;
+  return bcrypt.compare(password, user.password);
+};
 
 
 /**
@@ -93,7 +92,7 @@ userSchema.methods.isPasswordMatch = async function (password) {
  */
 userSchema.methods.hasSetNonDefaultAddress = async function () {
   const user = this;
-   return user.address !== config.default_address;
+  return user.address !== config.default_address;
 };
 
 /*

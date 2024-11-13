@@ -3,7 +3,6 @@ const { Cart, Product } = require("../models");
 const ApiError = require("../utils/ApiError");
 const config = require("../config/config");
 
-
 /**
  * Fetches cart for a user
  * - Fetch user's cart from Mongo
@@ -49,11 +48,14 @@ const getCartByUser = async (user) => {
  */
 const addProductToCart = async (user, productId, quantity) => {
   let cart = await Cart.findOne({ email: user.email });
-  
+
   // Check if product exists
   const product = await Product.findById(productId);
   if (!product) {
-    throw new ApiError(httpStatus.BAD_REQUEST, "Product doesn't exist in database");
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      "Product doesn't exist in database"
+    );
   }
 
   // If cart doesn't exist, try to create new cart
@@ -75,7 +77,7 @@ const addProductToCart = async (user, productId, quantity) => {
 
   // Check if product already in cart
   const isProductInCart = cart.cartItems.some(
-    item => item.product._id.toString() === productId
+    (item) => item.product._id.toString() === productId
   );
 
   if (isProductInCart) {
@@ -88,7 +90,7 @@ const addProductToCart = async (user, productId, quantity) => {
   // Add new product to cart
   cart.cartItems.push({ product, quantity });
   const updatedCart = await cart.save();
-  
+
   // Check if save operation failed
   if (!updatedCart) {
     throw new ApiError(
@@ -135,13 +137,16 @@ const updateProductInCart = async (user, productId, quantity) => {
 
   const product = await Product.findById(productId);
   if (!product) {
-    throw new ApiError(httpStatus.BAD_REQUEST, "Product doesn't exist in database");
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      "Product doesn't exist in database"
+    );
   }
 
   const cartItem = cart.cartItems.find(
-    item => item.product._id.toString() === productId
+    (item) => item.product._id.toString() === productId
   );
-  
+
   if (!cartItem) {
     throw new ApiError(httpStatus.BAD_REQUEST, "Product not in cart");
   }
@@ -153,7 +158,7 @@ const updateProductInCart = async (user, productId, quantity) => {
   } else {
     // Remove product if quantity is 0
     cart.cartItems = cart.cartItems.filter(
-      item => item.product._id.toString() !== productId
+      (item) => item.product._id.toString() !== productId
     );
     await cart.save();
     return null; // Return null to indicate item was removed
@@ -180,21 +185,15 @@ const updateProductInCart = async (user, productId, quantity) => {
 const deleteProductFromCart = async (user, productId) => {
   const cart = await Cart.findOne({ email: user.email });
   if (!cart) {
-    throw new ApiError(
-      httpStatus.BAD_REQUEST,
-      "User does not have a cart"
-    );
+    throw new ApiError(httpStatus.BAD_REQUEST, "User does not have a cart");
   }
 
   const productIndex = cart.cartItems.findIndex(
-    item => item.product._id.toString() === productId
+    (item) => item.product._id.toString() === productId
   );
 
   if (productIndex === -1) {
-    throw new ApiError(
-      httpStatus.BAD_REQUEST,
-      "Product not in cart"
-    );
+    throw new ApiError(httpStatus.BAD_REQUEST, "Product not in cart");
   }
 
   cart.cartItems.splice(productIndex, 1);
@@ -212,7 +211,7 @@ const deleteProductFromCart = async (user, productId) => {
  */
 const checkout = async (user) => {
   const cart = await Cart.findOne({ email: user.email });
-  
+
   if (!cart) {
     throw new ApiError(httpStatus.NOT_FOUND, "User does not have a cart");
   }
@@ -226,7 +225,7 @@ const checkout = async (user) => {
   }
 
   const cartTotal = cart.cartItems.reduce((total, item) => {
-    return total + (item.product.price * item.quantity);
+    return total + item.product.price * item.quantity;
   }, 0);
 
   // Ensure we're working with numbers for comparison
@@ -234,20 +233,20 @@ const checkout = async (user) => {
   const totalCost = parseFloat(cartTotal);
 
   if (totalCost > walletBalance) {
-    throw new ApiError(httpStatus.BAD_REQUEST, "Wallet balance is insufficient");
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      "Wallet balance is insufficient"
+    );
   }
 
   // Update wallet balance
   user.walletMoney = walletBalance - totalCost;
-  
+
   // Empty cart
   cart.cartItems = [];
 
   // Save both user and cart
-  await Promise.all([
-    user.save(),
-    cart.save()
-  ]);
+  await Promise.all([user.save(), cart.save()]);
 
   return cart;
 };

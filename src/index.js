@@ -4,12 +4,14 @@ const config = require("./config/config");
 
 let server;
 
-
-mongoose.connect(config.mongoose.url, config.mongoose.options).then(() => {
-  console.log("Connected to MongoDB");
-  server = app.listen(config.port, () => {
-    console.log(`Listening to port ${config.port}`);
+mongoose
+  .connect(config.mongoose.url, config.mongoose.options)
+  .then(() => {
+    console.log("Connected to MongoDB");
+    server = app.listen(config.port, () => {
+      console.log(`Listening to port ${config.port}`);
+    });
+  })
+  .catch((error) => {
+    console.log("Error connecting to MongoDB", error);
   });
-}).catch((error) => {
-  console.log("Error connecting to MongoDB", error);
-});

@@ -1,6 +1,6 @@
-const mongoose = require('mongoose');
-const { productSchema } = require('./product.model');
-const config = require("../config/config")
+const mongoose = require("mongoose");
+const { productSchema } = require("./product.model");
+const config = require("../config/config");
 
 const cartSchema = mongoose.Schema(
   {
@@ -9,10 +9,12 @@ const cartSchema = mongoose.Schema(
       required: true,
       unique: true,
     },
-    cartItems: [{
-      product: productSchema,
-      quantity: Number,
-    }],
+    cartItems: [
+      {
+        product: productSchema,
+        quantity: Number,
+      },
+    ],
 
     paymentOption: {
       type: String,
@@ -24,10 +26,9 @@ const cartSchema = mongoose.Schema(
   }
 );
 
-
 /**
  * @typedef Cart
  */
-const Cart = mongoose.model('Cart', cartSchema);
+const Cart = mongoose.model("Cart", cartSchema);
 
 module.exports.Cart = Cart;
